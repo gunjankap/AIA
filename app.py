@@ -1,43 +1,43 @@
-# app.py (snippet)
 import streamlit as st
+from schemes import SCHEMES
+from logic import evaluate_scheme
 
+# ---- Session Init ----
 if "user" not in st.session_state:
     st.session_state.user = {}
 
-if "step" not in st.session_state:
-    st.session_state.step = 0
-from schemes import SCHEMES
-from logic import evaluate_scheme
-import streamlit as st
-
 scheme = SCHEMES["Startup India"]
 
-st.subheader("Startup India – Eligibility Check")
+st.title("Startup India – Eligibility Check")
 
+# ---- Ask ONE question at a time ----
 for attr, meta in scheme["required_attributes"].items():
+
     if attr not in st.session_state.user:
 
         st.caption(f"Why we ask: {meta['why']}")
 
+        answer = None
+
         if meta["type"] == "boolean":
-            st.session_state.user[attr] = st.radio(
-                meta["question"], [True, False]
-            )
+            answer = st.radio(meta["question"], ["Yes", "No"])
 
         elif meta["type"] == "number":
-            st.session_state.user[attr] = st.number_input(
-                meta["question"], min_value=0
-            )
+            answer = st.number_input(meta["question"], min_value=0)
 
         elif meta["type"] == "select":
-            st.session_state.user[attr] = st.selectbox(
-                meta["question"], meta["options"]
-            )
+            answer = st.selectbox(meta["question"], meta["options"])
 
         elif meta["type"] == "text":
-            st.session_state.user[attr] = st.text_input(
-                meta["question"]
-            )
+            answer = st.text_input(meta["question"])
 
-        st.rerun()
+        # 👇 EXPLICIT SUBMIT
+        if st.button("Next"):
+            if meta["type"] == "boolean":
+                answer = True if answer == "Yes" else False
 
+            st.session_state.user[attr] = answer
+            st.rerun()
+
+        # 🚨 STOP further rendering
+        st.stop()
