@@ -17,7 +17,7 @@ def go(page):
     st.session_state.page = page
     st.rerun()
 
-# ---------------- PAGE 1 ----------------
+# ---------------- PAGE 1: PERSONA ----------------
 def persona_page():
     st.title("Entrepreneur Persona")
 
@@ -32,21 +32,22 @@ def persona_page():
 
     if st.button("Next"):
         if "Student" in persona:
-            st.session_state.user["persona"] = "student"
+            st.session_state.user = {"persona": "student"}
         elif "Early" in persona:
-            st.session_state.user["persona"] = "early"
+            st.session_state.user = {"persona": "early"}
         else:
-            st.session_state.user["persona"] = "msme"
+            st.session_state.user = {"persona": "msme"}
 
-        go("chat")
+        go("form")
 
-# ---------------- PAGE 2 ----------------
-def chat_page():
-    st.title("Adaptive Eligibility Chat")
+# ---------------- PAGE 2: SINGLE-PAGE FORM ----------------
+def form_page():
+    st.title("Eligibility Assessment")
     st.button("⬅ Back", on_click=lambda: go("persona"))
 
     persona = st.session_state.user["persona"]
 
+    # Select applicable schemes
     schemes = {
         k: v for k, v in SCHEMES.items()
         if persona in v["personas"]
@@ -56,42 +57,55 @@ def chat_page():
     scheme = schemes[scheme_name]
 
     st.subheader(scheme_name)
+    st.caption("Answer the following questions to assess eligibility")
 
-    for attr, meta in scheme["required_attributes"].items():
-        if attr not in st.session_state.user:
+    with st.form("eligibility_form"):
+        responses = {}
 
+        for attr, meta in scheme["required_attributes"].items():
+            st.markdown(f"**{meta['question']}**")
             st.caption(f"Why we ask: {meta['why']}")
 
-            answer = None
-
             if meta["type"] == "boolean":
-                answer = st.radio(meta["question"], ["Yes", "No"])
+                responses[attr] = st.radio(
+                    "", ["Yes", "No"], key=attr
+                )
+
             elif meta["type"] == "number":
-                answer = st.number_input(meta["question"], min_value=0)
+                responses[attr] = st.number_input(
+                    "", min_value=0, key=attr
+                )
+
             elif meta["type"] == "select":
-                answer = st.selectbox(meta["question"], meta["options"])
+                responses[attr] = st.selectbox(
+                    "", meta["options"], key=attr
+                )
+
+            elif meta["type"] == "text":
+                responses[attr] = st.text_input(
+                    "", key=attr
+                )
+
+            st.divider()
+
+        submitted = st.form_submit_button("Evaluate Eligibility")
+
+    if submitted:
+        for attr, val in responses.items():
+            if val in ["Yes", "No"]:
+                st.session_state.user[attr] = True if val == "Yes" else False
             else:
-                answer = st.text_input(meta["question"])
+                st.session_state.user[attr] = val
 
-            if st.button("Next"):
-                if meta["type"] == "boolean":
-                    answer = True if answer == "Yes" else False
+        st.session_state.user["scheme"] = scheme_name
+        go("engine")
 
-                st.session_state.user[attr] = answer
-                st.rerun()
-
-            st.stop()
-
-    st.session_state.user["scheme"] = scheme_name
-    go("engine")
-
-# ---------------- PAGE 3 ----------------
+# ---------------- PAGE 3: RULE ENGINE ----------------
 def engine_page():
     st.title("Rule-Based Eligibility Engine")
-    st.button("⬅ Back", on_click=lambda: go("chat"))
+    st.button("⬅ Back", on_click=lambda: go("form"))
 
     scheme = SCHEMES[st.session_state.user["scheme"]]
-
     status, reasons = evaluate_scheme(scheme, st.session_state.user)
 
     st.session_state.result = {
@@ -100,19 +114,19 @@ def engine_page():
         "scheme": scheme
     }
 
-    st.success(f"Status: {status}")
+    st.success(f"Eligibility Status: {status}")
 
     if st.button("Explain Decision"):
         go("explain")
 
-# ---------------- PAGE 4 ----------------
+# ---------------- PAGE 4: EXPLANATION ----------------
 def explain_page():
     st.title("AI Explanation Layer")
     st.button("⬅ Back", on_click=lambda: go("engine"))
 
     res = st.session_state.result
 
-    st.write(f"**Eligibility Status:** {res['status']}")
+    st.write(f"**Status:** {res['status']}")
 
     if res["reasons"]:
         st.write("### Reasons")
@@ -124,7 +138,7 @@ def explain_page():
     if st.button("View Advisory Report"):
         go("report")
 
-# ---------------- PAGE 5 ----------------
+# ---------------- PAGE 5: REPORT ----------------
 def report_page():
     st.title("Scheme Advisory Report")
     st.button("⬅ Back", on_click=lambda: go("explain"))
@@ -140,8 +154,8 @@ def report_page():
 # ---------------- ROUTER ----------------
 if st.session_state.page == "persona":
     persona_page()
-elif st.session_state.page == "chat":
-    chat_page()
+elif st.session_state.page == "form":
+    form_page()
 elif st.session_state.page == "engine":
     engine_page()
 elif st.session_state.page == "explain":
