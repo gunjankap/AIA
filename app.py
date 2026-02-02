@@ -45,7 +45,7 @@ elif st.session_state.step == 1:
 
     if st.button("Evaluate Schemes"):
         st.session_state.step = 2
-        st.experimental_rerun()
+        st.rerun()
 
 # STEP 2: Results
 elif st.session_state.step == 2:
