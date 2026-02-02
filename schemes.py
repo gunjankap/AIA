@@ -1,56 +1,46 @@
+# schemes.py
+
 SCHEMES = {
     "Startup India": {
+        "source": "startupindia.gov.in",
         "personas": ["student", "early", "msme"],
-        "rules": [
-            ("registered", True, "Startup must be registered"),
-            ("entity_type", ["Private Limited", "LLP", "Partnership"], "Invalid entity type"),
-            ("startup_age_years", lambda x: x <= 10, "Startup older than 10 years"),
-            ("turnover", lambda x: x <= 100, "Turnover exceeds ₹100 Cr")
+
+        "required_attributes": [
+            "registered",
+            "entity_type",
+            "startup_age_years",
+            "turnover"
         ],
+
+        "rules": [
+            {
+                "attribute": "registered",
+                "condition": True,
+                "message": "Startup must be registered"
+            },
+            {
+                "attribute": "entity_type",
+                "condition": ["Private Limited", "LLP", "Partnership"],
+                "message": "Entity type not eligible"
+            },
+            {
+                "attribute": "startup_age_years",
+                "condition": lambda x: x <= 10,
+                "message": "Startup older than 10 years"
+            },
+            {
+                "attribute": "turnover",
+                "condition": lambda x: x <= 100,
+                "message": "Turnover exceeds ₹100 Cr"
+            }
+        ],
+
         "documents": [
             "Certificate of Incorporation",
             "PAN",
-            "DPIIT Application"
-        ]
-    },
-
-    "IIM Incubation": {
-        "personas": ["student", "early"],
-        "rules": [
-            ("is_student", True, "Founder must be a student or alumnus"),
-            ("startup_stage", ["Idea", "Prototype", "Pilot"], "Not suitable stage")
+            "DPIIT Recognition Application"
         ],
-        "documents": [
-            "Pitch Deck",
-            "Problem Statement",
-            "Student ID / Alumni Proof"
-        ]
-    },
 
-    "PMEGP": {
-        "personas": ["early", "msme"],
-        "rules": [
-            ("age", lambda x: x >= 18, "Applicant must be 18+"),
-            ("turnover", lambda x: x <= 50, "Not a micro enterprise"),
-            ("prior_subsidy", False, "Already availed subsidy")
-        ],
-        "documents": [
-            "Aadhaar",
-            "Project Report",
-            "Bank Details"
-        ]
-    },
-
-    "SIDBI Support": {
-        "personas": ["early", "msme"],
-        "rules": [
-            ("registered", True, "Business must be registered"),
-            ("turnover", lambda x: x > 0, "Revenue required"),
-        ],
-        "documents": [
-            "Financial Statements",
-            "GST Returns",
-            "Bank Statements"
-        ]
+        "apply_via": "Startup India Portal"
     }
 }
