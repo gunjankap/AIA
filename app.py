@@ -1,5 +1,11 @@
 # app.py (snippet)
+import streamlit as st
 
+if "user" not in st.session_state:
+    st.session_state.user = {}
+
+if "step" not in st.session_state:
+    st.session_state.step = 0
 from schemes import SCHEMES
 from logic import evaluate_scheme
 import streamlit as st
