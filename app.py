@@ -24,7 +24,7 @@ if st.session_state.step == 0:
             else "msme"
         )
         st.session_state.step = 1
-        st.experimental_rerun()
+        st.rerun()
 
 # STEP 1: Common Questions
 elif st.session_state.step == 1:
