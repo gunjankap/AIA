@@ -1,0 +1,2 @@
+print("Model prediction shape:", preds.shape)
+print("Model prediction:", preds)
