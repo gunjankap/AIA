@@ -1,14 +1,10 @@
 plotly
-streamlit
 pandas
 numpy
 scikit-learn
 matplotlib
 seaborn
 openai
-langchain
-langchain-community
-langchain-openai
 python-dotenv
 fastapi
 uvicorn
