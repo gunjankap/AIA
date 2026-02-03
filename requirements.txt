@@ -10,3 +10,11 @@ langchain
 langchain-community
 langchain-openai
 python-dotenv
+fastapi
+uvicorn
+tensorflow-cpu==2.15.0
+numpy
+pillow
+scikit-learn
+joblib
+python-multipart
